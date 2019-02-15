@@ -4,6 +4,8 @@ from flask import jsonify
 import pyorient
 from pprint import pprint
 
+import json
+
 app = Flask(__name__)
 
 # solo para pruebas
@@ -22,12 +24,7 @@ def info():
     client = pyorient.OrientDB(HOST, PORT)
     session_id = client.connect(USER, PASSWORD)
     client.db_open(DATABASE, USER, PASSWORD)
-    records = client.command("SELECT name FROM OUser where name = 'admin'")
+    records = client.query("SELECT name FROM OUser where name = 'admin'")
     client.db_close()
 
-    array = []
-
-    for row in records:
-        array.append(str(row))
-
-    return array[0]
+    return jsonify(records[0].oRecordData)
