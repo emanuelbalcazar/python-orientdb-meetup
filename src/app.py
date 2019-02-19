@@ -1,10 +1,12 @@
 # coding=utf-8
 from flask import Flask
 from flask import jsonify
-import pyorient
 from pprint import pprint
+import pyorient
 
-import json
+# sitepackages/pyorient/constants.py
+# cambiar de 36 a 37
+# SUPPORTED_PROTOCOL = 37
 
 app = Flask(__name__)
 
