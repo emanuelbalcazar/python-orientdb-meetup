@@ -1,5 +1,5 @@
 # coding=utf-8
-from flask import Flask, request
+from flask import Flask, request, render_template
 from flask import jsonify
 from pprint import pprint
 import pyorient
@@ -19,8 +19,8 @@ USER = "root"
 PASSWORD = "root"
 
 @app.route('/', methods=['GET'])
-def hello_world():
-    return 'Hello World!'
+def index():
+    return render_template('index.html')
 
 
 @app.route('/api/info', methods=['GET'])
