@@ -12,11 +12,18 @@ import json
 app = Flask(__name__)
 
 # solo para pruebas
-DATABASE = "demodb"
+DATABASE = "meetup"
 HOST = "localhost"
 PORT = 2424
 USER = "root"
 PASSWORD = "root"
+
+def get_connection():
+    client = pyorient.OrientDB(HOST, PORT)
+    session_id = client.connect(USER, PASSWORD)
+    client.db_open(DATABASE, USER, PASSWORD)
+
+    return client
 
 @app.route('/', methods=['GET'])
 def index():
@@ -35,32 +42,48 @@ def info():
     return jsonify(records[0].oRecordData)
 
 
-@app.route('/api/nodes', methods=['GET'])
-def get_nodes():
-    client = pyorient.OrientDB(HOST, PORT)
-    session_id = client.connect(USER, PASSWORD)
-    client.db_open(DATABASE, USER, PASSWORD)
-
-    records = client.query("SELECT FROM V")
+@app.route('/api/profesores', methods=['GET'])
+def profesores():
+    client = get_connection()
+    records = client.query("SELECT FROM Profesor")
     result = [];
 
-    for node in records:
-        result.append({"id": node._rid, "label": node.oRecordData['Name']})
+    for profesor in records:
+        result.append({"id": profesor._rid , "class": profesor._class, "nombre": profesor.oRecordData['nombre']})
 
     client.db_close()
     return jsonify(result)
 
 
-@app.route('/api/edges', methods=['GET'])
-def get_edges():
-    client = pyorient.OrientDB(HOST, PORT)
-    session_id = client.connect(USER, PASSWORD)
-    client.db_open(DATABASE, USER, PASSWORD)
-    records = client.query("SELECT FROM E")
-    result = [];
+@app.route('/api/agregarProfesor', methods=['POST'])
+def agregarProfesor():
+    data = request.get_json()
+    client = get_connection()
 
-    for edge in records:
-        result.append({"id": edge._rid , "label": edge._class, "from": str(edge._out), "to": str(edge._in)})
+    records = client.command("INSERT INTO Profesor CONTENT " + str(data))
+    result = records[0]
 
     client.db_close()
-    return jsonify(result)
+    return jsonify({"id": result._rid , "class": result._class, "nombre": result.oRecordData['nombre']})
+
+
+@app.route('/api/borrarProfesor/<id>', methods=['DELETE'])
+def borrarProfesor(id):
+    client = get_connection()
+    records = client.command("DELETE FROM Profesor WHERE @rid = #" + id + " unsafe")
+    result = records[0]
+
+    client.db_close()
+    return jsonify({"deleted": str(result)})
+
+
+@app.route('/api/actualizarProfesor', methods=['POST'])
+def actualizarProfesor():
+    data = request.get_json()
+    client = get_connection()
+
+    records = client.command("UPDATE Profesor SET nombre = '" + data['nombre'] + "' WHERE @rid = " + data['id'])
+    result = records[0]
+
+    client.db_close()
+    return jsonify({"updated": str(result)})
