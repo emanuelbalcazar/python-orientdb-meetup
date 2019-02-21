@@ -25,6 +25,7 @@ def get_connection():
 
     return client
 
+
 @app.route('/', methods=['GET'])
 def index():
     return render_template('index.html')
@@ -87,3 +88,29 @@ def actualizarProfesor():
 
     client.db_close()
     return jsonify({"updated": str(result)})
+
+
+@app.route('/api/nodes', methods=['GET'])
+def nodes():
+    client = get_connection()
+    records = client.query("SELECT FROM V")
+    result = [];
+
+    for node in records:
+        result.append({"id": node._rid , "class": node._class, "label": node.oRecordData['nombre']})
+
+    client.db_close()
+    return jsonify(result)
+
+
+@app.route('/api/edges', methods=['GET'])
+def edges():
+    client = get_connection()
+    records = client.query("SELECT FROM E")
+    result = [];
+
+    for edge in records:
+        result.append({"id": edge._rid , "label": edge._class, "from": str(edge._out), "to": str(edge._in)})
+
+    client.db_close()
+    return jsonify(result)
