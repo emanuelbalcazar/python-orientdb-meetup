@@ -1,10 +1,10 @@
 API
 
 --leer lista de alumnos
-GET  http://localhost:2480/query/eip/sql/select from Alumno
+GET  http://localhost:2480/query/meetup/sql/select from Alumno
 
 --agregar alumno
-POST http://localhost:2480/document/eip
+POST http://localhost:2480/document/meetup
 {
 	"@class":	"Alumno",
 	 "direccionCasa": {
@@ -19,7 +19,7 @@ POST http://localhost:2480/document/eip
 }
 
 --hacer un sql
-POST http://localhost:2480/command/eip/sql
+POST http://localhost:2480/command/meetup/sql
 {
 	"command":	"select nombre, out('dicta').in('matriculadoEn').nombre as alumnoMatriculado from Profesor"
 }
